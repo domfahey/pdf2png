@@ -77,7 +77,9 @@ def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) 
             try:
                 page_to_png(page, output_file)
             except RuntimeError as exc:
-                raise RuntimeError(f"Failed on page {index} of {total_pages}: {exc}") from exc
+                raise RuntimeError(
+                    f"Failed on page {index} of {total_pages}: {exc}"
+                ) from exc
 
 
 def main() -> None:
