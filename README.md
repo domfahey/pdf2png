@@ -2,6 +2,8 @@
 
 Convert scanned, multi-page PDFs into lossless, page-numbered PNG images using a lightweight Python CLI.
 
+**Author: Dominic Fahey <domfahey@gmail.com>**
+
 [![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
