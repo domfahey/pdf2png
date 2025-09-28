@@ -2,6 +2,20 @@
 
 Convert scanned, multi-page PDFs into lossless, page-numbered PNG images using a lightweight Python CLI.
 
+[![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+## Table of Contents
+
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Development Workflow](#development-workflow)
+- [Project Layout](#project-layout)
+- [Contributing](#contributing)
+- [License](#license)
+
 ## Features
 - Extracts the highest-fidelity raster image from each PDF page and saves it losslessly as PNG.
 - Preserves page order with zero-padded numbering (e.g., `document_page_001.png`).
@@ -75,3 +89,7 @@ uv run make test      # Execute pytest suite
 - Follow the conventions in `AGENTS.md` for style, testing, and PR etiquette.
 - Keep commits concise and imperative (e.g., `Add pytest test target`).
 - Include relevant `uv run make …` outputs in PR descriptions to document validation.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
