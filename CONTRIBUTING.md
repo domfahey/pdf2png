@@ -42,6 +42,13 @@
 4. **Set up pre-commit hooks**: `uv run pre-commit install`
 5. **Verify setup**: Run `make check` to ensure everything is working
 
+## Security Guidelines
+
+- **Never commit secrets or sensitive data** to the repository. Use environment variables or secure credential management instead of hardcoding keys, passwords, or tokens
+- Check `.gitignore` for comprehensive patterns that should exclude sensitive files
+- If you accidentally commit sensitive data, revoke and rotate the affected credentials immediately
+- Be cautious when adding new dependencies - review for security vulnerabilities
+
 ## Testing Guidelines
 
 - Write tests under `tests/` named `test_<feature>.py`
