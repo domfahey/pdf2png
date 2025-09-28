@@ -41,12 +41,31 @@ def parse_args() -> argparse.Namespace:
 
 
 def get_largest_image(images: Iterable[PdfImage]) -> PdfImage:
-    """Return the largest image (by pixel area) from a collection."""
+    """Return the largest image (by pixel area) from a collection.
+
+    Args:
+        images: An iterable collection of PdfImage objects.
+
+    Returns:
+        The PdfImage with the maximum width * height.
+    """
     return max(images, key=lambda img: img.width * img.height)
 
 
 def page_to_png(page: pikepdf.Page, output_path: Path) -> None:
-    """Extract the primary scanned image from a page and save it as PNG."""
+    """Extract the primary scanned image from a page and save it as PNG.
+
+    Iterates through all images in the PDF page, extracts them as PdfImage objects,
+    and skips any that fail to load. If no valid images are found, raises a RuntimeError.
+    Otherwise, selects the largest by area and saves it as a lossless PNG file.
+
+    Args:
+        page: The pikepdf.Page object from which to extract images.
+        output_path: Path where the output PNG file will be written.
+
+    Raises:
+        RuntimeError: If no extractable images are found on the page.
+    """
     pdf_images = []
     for raw_image in page.images.values():
         try:
