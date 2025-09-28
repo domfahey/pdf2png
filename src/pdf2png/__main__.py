@@ -48,16 +48,19 @@ def main() -> None:
     output_dir: Path = args.output_dir
     prefix: str = args.prefix or pdf_path.stem
 
+    # Input validation
     if not pdf_path.exists():
         sys.exit(f"Input PDF does not exist: {pdf_path}")
     if pdf_path.suffix.lower() != ".pdf":
         sys.exit("Input file must be a PDF")
 
+    # Ensure output directory exists
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         sys.exit(f"Unable to create output directory {output_dir}: {exc}")
 
+    # Perform conversion with error handling
     try:
         convert_pdf(pdf_path, output_dir, prefix, overwrite=args.overwrite)
     except Exception as exc:

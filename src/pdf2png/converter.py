@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Iterable, cast
 
 import pikepdf
-from pikepdf import PdfImage, Stream
-from PIL import Image
+from pikepdf import PdfImage, Stream  # PDF processing
+from PIL import Image  # Image manipulation
 
 
 def get_largest_image(images: Iterable[PdfImage]) -> PdfImage:
@@ -35,16 +35,19 @@ def page_to_png(page: pikepdf.Page, output_path: Path) -> None:
     Raises:
         RuntimeError: If no extractable images are found on the page.
     """
+    # Extract all images from the PDF page, filtering out any that fail to load
     pdf_images = []
     for raw_image in page.images.values():
         try:
             pdf_images.append(PdfImage(cast(Stream, raw_image)))
         except pikepdf.PdfError:
+            # Skip corrupted or unsupported image data
             continue
 
     if not pdf_images:
         raise RuntimeError("No extractable images found on page")
 
+    # Select largest image by pixel area (scanned pages typically have one main image)
     largest = get_largest_image(pdf_images)
     pil_image: Image.Image = largest.as_pil_image()
     # Use PNG with no lossy transformations so pixel data remains untouched.
@@ -70,6 +73,7 @@ def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) 
     with pikepdf.open(pdf_path) as pdf:
         total_pages = len(pdf.pages)
         for index, page in enumerate(pdf.pages, start=1):
+            # Generate zero-padded page number for consistent sorting (001, 002, etc.)
             page_number = f"{index:03d}"
             output_file = output_dir / f"{prefix}_page_{page_number}.png"
 
@@ -81,6 +85,7 @@ def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) 
             try:
                 page_to_png(page, output_file)
             except RuntimeError as exc:
+                # Preserve original error while adding context about which page failed
                 raise RuntimeError(
                     f"Failed on page {index} of {total_pages}: {exc}"
                 ) from exc
