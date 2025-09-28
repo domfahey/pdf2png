@@ -1,15 +1,70 @@
 from pathlib import Path
-import pytest
+from dataclasses import dataclass
 from unittest import mock
 
+import pytest
 from PIL import Image, ImageChops
 
 from pdf2png import convert_pdf, get_largest_image
 
 
-def create_sample_pdf(pdf_path: Path, size=(32, 32), append_images=None) -> Image.Image:
+# Test data structures
+@dataclass
+class MockImage:
+    """Mock image object for testing."""
+    width: int
+    height: int
+
+
+@dataclass
+class SamplePDF:
+    """PDF test fixture data."""
+    path: Path
+    baseline_image: Image.Image
+
+
+# Configuration
+SAMPLE_SIZE = (32, 32)
+OUTPUT_DIR_NAME = "out"
+
+
+# Pytest fixtures
+@pytest.fixture
+def sample_pdf(tmp_path: Path) -> SamplePDF:
+    """Create a basic single-page PDF for testing."""
+    pdf_path = tmp_path / "sample.pdf"
+    baseline = Image.new("RGB", SAMPLE_SIZE, color="white")
+    baseline.save(pdf_path, "PDF")
+    return SamplePDF(pdf_path, baseline)
+
+
+@pytest.fixture
+def output_dir(tmp_path: Path) -> Path:
+    """Create a temporary output directory."""
+    out_dir = tmp_path / OUTPUT_DIR_NAME
+    out_dir.mkdir()
+    return out_dir
+
+
+@pytest.fixture
+def multi_page_pdf(tmp_path: Path) -> tuple[Path, dict[int, tuple[int, int]]]:
+    """Create a multi-page PDF with known page sizes."""
+    pdf_path = tmp_path / "multi.pdf"
+    pages = [
+        Image.new("RGB", (32, 32), color="red"),
+        Image.new("RGB", (64, 64), color="blue"),
+        Image.new("RGB", (16, 16), color="green"),
+    ]
+    expected_sizes = {1: (32, 32), 2: (64, 64), 3: (16, 16)}
+
+    pages[0].save(pdf_path, "PDF", append_images=pages[1:])
+
+    return pdf_path, expected_sizes
+
+
+def create_sample_pdf(pdf_path: Path, size=SAMPLE_SIZE, append_images=None) -> Image.Image:
     """Create a sample PDF from PIL images."""
-    image = Image.new("RGB", size, color="white")
+    image = Image.new("RGB", size or SAMPLE_SIZE, color="white")
     save_kwargs = {"format": "PDF"}
     if append_images:
         save_kwargs["append_images"] = append_images
@@ -18,66 +73,45 @@ def create_sample_pdf(pdf_path: Path, size=(32, 32), append_images=None) -> Imag
 
 
 def test_get_largest_image():
-    """Test get_largest_image function with multiple images."""
-
-    class MockImage:
-        def __init__(self, width, height):
-            self.width = width
-            self.height = height
+    """Test get_largest_image function selects the largest by pixel area."""
 
     images = [
-        MockImage(10, 10),
-        MockImage(20, 30),
-        MockImage(40, 20),  # 800 px area
-        MockImage(15, 15),  # 225 px area
+        MockImage(10, 10),  # 100 px
+        MockImage(20, 30),  # 600 px
+        MockImage(40, 20),  # 800 px (largest)
+        MockImage(15, 15),  # 225 px
     ]
     largest = get_largest_image(images)
-    assert largest is images[2]  # 40x20
+    assert largest is images[2]
+    assert largest.width == 40
+    assert largest.height == 20
 
 
-def test_convert_pdf_outputs_named_png_single_page(tmp_path) -> None:
+def test_convert_pdf_outputs_named_png_single_page(sample_pdf: SamplePDF, output_dir: Path) -> None:
     """Test successful conversion of a single-page PDF."""
-    pdf_path = tmp_path / "sample.pdf"
-    baseline = create_sample_pdf(pdf_path)
-
-    output_dir = tmp_path / "out"
-    output_dir.mkdir()
-
-    convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
+    convert_pdf(sample_pdf.path, output_dir, prefix="sample", overwrite=False)
 
     output_file = output_dir / "sample_page_001.png"
     assert output_file.exists()
 
     with Image.open(output_file) as png:
-        assert png.size == (32, 32)
+        assert png.size == SAMPLE_SIZE
 
-        diff = ImageChops.difference(png.convert("RGB"), baseline)
+        diff = ImageChops.difference(png.convert("RGB"), sample_pdf.baseline_image)
         assert diff.getbbox() is None
 
 
-def test_convert_pdf_outputs_named_png_multiple_pages(tmp_path) -> None:
+def test_convert_pdf_outputs_named_png_multiple_pages(multi_page_pdf: tuple[Path, dict[int, tuple[int, int]]], output_dir: Path) -> None:
     """Test successful conversion of a multi-page PDF."""
-    pdf_path = tmp_path / "multi.pdf"
-    img1 = Image.new("RGB", (32, 32), color="red")
-    img2 = Image.new("RGB", (64, 64), color="blue")
-    img3 = Image.new("RGB", (16, 16), color="green")
-    img1.save(pdf_path, "PDF", append_images=[img2, img3])
-
-    output_dir = tmp_path / "out"
-    output_dir.mkdir()
+    pdf_path, expected_sizes = multi_page_pdf
 
     convert_pdf(pdf_path, output_dir, prefix="multi", overwrite=False)
 
-    for page_num in range(1, 4):
+    for page_num, expected_size in expected_sizes.items():
         output_file = output_dir / f"multi_page_{page_num:03d}.png"
         assert output_file.exists()
         with Image.open(output_file) as png:
-            if page_num == 1:
-                assert png.size == (32, 32)
-            elif page_num == 2:
-                assert png.size == (64, 64)
-            elif page_num == 3:
-                assert png.size == (16, 16)
+            assert png.size == expected_size
 
 
 def test_convert_pdf_overwrite_existing_file_raises(tmp_path) -> None:
@@ -149,35 +183,31 @@ def test_convert_pdf_page_processing_error(tmp_path) -> None:
         convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
 
 
-def test_main_invalid_pdf_path(tmp_path) -> None:
-    """Test main exits with error for non-existent PDF."""
-    pdf_path = tmp_path / "nonexist.pdf"
+@pytest.mark.parametrize(
+    "invalid_path,expected_message",
+    [
+        ("nonexistent.pdf", lambda path: f"Input PDF does not exist: {path}"),
+        ("file.txt", lambda _: "Input file must be a PDF"),
+    ],
+)
+def test_main_invalid_inputs(tmp_path, invalid_path, expected_message):
+    """Test main exits with error for invalid input files."""
+    input_path = tmp_path / invalid_path
+    if invalid_path == "file.txt":
+        input_path.write_text("not a pdf")
     out_dir = tmp_path / "out"
 
-    with mock.patch("sys.argv", ["pdf2png.py", str(pdf_path), str(out_dir)]):
-        with mock.patch("sys.exit") as mock_exit:
-            mock_exit.side_effect = SystemExit
-            with pytest.raises(SystemExit):
-                from pdf2png import main
+    with (
+        mock.patch("sys.argv", ["pdf2png.py", str(input_path), str(out_dir)]),
+        mock.patch("sys.exit") as mock_exit,
+    ):
+        mock_exit.side_effect = SystemExit
+        with pytest.raises(SystemExit):
+            from pdf2png import main
 
-                main()
-            mock_exit.assert_called_once_with(f"Input PDF does not exist: {pdf_path}")
-
-
-def test_main_not_pdf_extension(tmp_path) -> None:
-    """Test main exits with error for non-PDF extension."""
-    txt_path = tmp_path / "file.txt"
-    txt_path.write_text("not a pdf")
-    out_dir = tmp_path / "out"
-
-    with mock.patch("sys.argv", ["pdf2png.py", str(txt_path), str(out_dir)]):
-        with mock.patch("sys.exit") as mock_exit:
-            mock_exit.side_effect = SystemExit
-            with pytest.raises(SystemExit):
-                from pdf2png import main
-
-                main()
-            mock_exit.assert_called_once_with("Input file must be a PDF")
+            main()
+        expected = expected_message(input_path) if callable(expected_message) else expected_message
+        mock_exit.assert_called_once_with(expected)
 
 
 def test_main_mkdir_failure(tmp_path) -> None:
