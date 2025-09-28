@@ -17,10 +17,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI/CD pipeline with GitHub Actions
 
 ### Changed
-- Project structure reorganized for better packaging and maintenance
+- Adopted src/ layout for proper Python packaging structure
+- Migrated to modern pyproject.toml configuration with PEP 621 compliance
+- Replaced legacy requirements.txt files with dependency-groups in pyproject.toml
+- Renamed AGENTS.md to CONTRIBUTING.md following standard conventions
+- Reorganized sample files into examples/ directory
+- Enhanced .gitignore with comprehensive Python development patterns
+- Updated Makefile for modern UV/Python workflow
+
+### Added
+- GitHub Actions CI/CD pipeline for automated testing, linting, and security checks
+- Pre-commit hooks configuration for code quality enforcement
+- SECURITY.md for responsible disclosure policy
+- Enhanced CONTRIBUTING.md with development setup and PR guidelines
+- Ruff configuration for consistent code styling and linting
+- MyPy strict mode configuration for type checking
+- UV-based tooling integration for dependency management
+- Comprehensive dependency version pinning in pyproject.toml
+- Script entry points for package installs
+- CHANGELOG.md for version tracking
 
 ### Fixed
-- Bug fixes for edge cases in PDF processing
+- Lint issues and type checking warnings
+- Import path updates to support new package structure
+- Test dependencies and coverage configuration improvements
 
 ### Security
-- Security improvements for input validation
+- Input validation improvements for PDF file processing
+- Secure coding practices applied throughout codebase
+- Dependency vulnerability scanning in CI/CD pipeline
