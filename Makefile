@@ -17,13 +17,13 @@ format:
 	uv run ruff format .
 
 test:
-	uv run pytest
+	PYTHONPATH=src uv run pytest tests/
 
 coverage:
-	uv run pytest --cov=src/pdf2png --cov-report=term-missing
+	PYTHONPATH=src uv run pytest --cov=src/pdf2png --cov-report=term-missing
 
 type-check:
-	uv run mypy
+	uv run mypy src/
 
 check: lint type-check test coverage
 

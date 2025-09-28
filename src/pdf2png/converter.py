@@ -23,9 +23,10 @@ def get_largest_image(images: Iterable[PdfImage]) -> PdfImage:
 def page_to_png(page: pikepdf.Page, output_path: Path) -> None:
     """Extract the primary scanned image from a page and save it as PNG.
 
-    Iterates through all images in the PDF page, extracts them as PdfImage objects,
-    and skips any that fail to load. If no valid images are found, raises a RuntimeError.
-    Otherwise, selects the largest by area and saves it as a lossless PNG file.
+    Iterates through all images in the PDF page, extracts them as PdfImage
+    objects, and skips any that fail to load. If no valid images are found,
+    raises a RuntimeError. Otherwise, selects the largest by area and saves it
+    as a lossless PNG file.
 
     Args:
         page: The pikepdf.Page object from which to extract images.
@@ -74,7 +75,7 @@ def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) 
 
             if output_file.exists() and not overwrite:
                 raise FileExistsError(
-                    f"Output file {output_file} already exists. Use --overwrite to replace it."
+                    f"Output file {output_file} already exists. Use --overwrite."
                 )
 
             try:

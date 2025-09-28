@@ -4,7 +4,7 @@ from unittest import mock
 
 from PIL import Image, ImageChops
 
-from src.pdf2png import convert_pdf, get_largest_image
+from pdf2png import convert_pdf, get_largest_image
 
 
 def create_sample_pdf(pdf_path: Path, size=(32, 32), append_images=None) -> Image.Image:
@@ -19,6 +19,7 @@ def create_sample_pdf(pdf_path: Path, size=(32, 32), append_images=None) -> Imag
 
 def test_get_largest_image():
     """Test get_largest_image function with multiple images."""
+
     class MockImage:
         def __init__(self, width, height):
             self.width = width
@@ -80,7 +81,7 @@ def test_convert_pdf_outputs_named_png_multiple_pages(tmp_path) -> None:
 
 
 def test_convert_pdf_overwrite_existing_file_raises(tmp_path) -> None:
-    """Test that convert_pdf raises FileExistsError when output exists and overwrite=False."""
+    """Test that convert_pdf raises FileExistsError when output exists."""
     pdf_path = tmp_path / "sample.pdf"
     create_sample_pdf(pdf_path)
 
@@ -90,7 +91,7 @@ def test_convert_pdf_overwrite_existing_file_raises(tmp_path) -> None:
     convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
 
     # Try to convert again without overwrite
-    with pytest.raises(FileExistsError, match="Output file .* already exists"):
+    with pytest.raises(FileExistsError, match=r"Output file .* already exists"):
         convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
 
 
@@ -108,6 +109,7 @@ def test_convert_pdf_overwrite_existing_file_succeeds(tmp_path) -> None:
 
     # Wait a bit to ensure mtime changes
     import time
+
     time.sleep(0.01)
 
     convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=True)
@@ -134,9 +136,17 @@ def test_convert_pdf_page_processing_error(tmp_path) -> None:
     output_dir = tmp_path / "out"
     output_dir.mkdir()
 
-    with mock.patch('src.pdf2png.converter.page_to_png', side_effect=RuntimeError("No extractable images found on page")):
-        with pytest.raises(RuntimeError, match=r"Failed on page 1 of 1: No extractable images found on page"):
-            convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
+    with (
+        mock.patch(
+            "pdf2png.converter.page_to_png",
+            side_effect=RuntimeError("No extractable images found on page"),
+        ),
+        pytest.raises(
+            RuntimeError,
+            match=r"Failed on page 1 of 1: No extractable images found on page",
+        ),
+    ):
+        convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
 
 
 def test_main_invalid_pdf_path(tmp_path) -> None:
@@ -144,11 +154,12 @@ def test_main_invalid_pdf_path(tmp_path) -> None:
     pdf_path = tmp_path / "nonexist.pdf"
     out_dir = tmp_path / "out"
 
-    with mock.patch('sys.argv', ['pdf2png.py', str(pdf_path), str(out_dir)]):
-        with mock.patch('sys.exit') as mock_exit:
+    with mock.patch("sys.argv", ["pdf2png.py", str(pdf_path), str(out_dir)]):
+        with mock.patch("sys.exit") as mock_exit:
             mock_exit.side_effect = SystemExit
             with pytest.raises(SystemExit):
-                from src.pdf2png import main
+                from pdf2png import main
+
                 main()
             mock_exit.assert_called_once_with(f"Input PDF does not exist: {pdf_path}")
 
@@ -159,11 +170,12 @@ def test_main_not_pdf_extension(tmp_path) -> None:
     txt_path.write_text("not a pdf")
     out_dir = tmp_path / "out"
 
-    with mock.patch('sys.argv', ['pdf2png.py', str(txt_path), str(out_dir)]):
-        with mock.patch('sys.exit') as mock_exit:
+    with mock.patch("sys.argv", ["pdf2png.py", str(txt_path), str(out_dir)]):
+        with mock.patch("sys.exit") as mock_exit:
             mock_exit.side_effect = SystemExit
             with pytest.raises(SystemExit):
-                from src.pdf2png import main
+                from pdf2png import main
+
                 main()
             mock_exit.assert_called_once_with("Input file must be a PDF")
 
@@ -174,12 +186,16 @@ def test_main_mkdir_failure(tmp_path) -> None:
     create_sample_pdf(pdf_path)
     out_dir = tmp_path / "out"
 
-    with mock.patch('sys.argv', ['pdf2png.py', str(pdf_path), str(out_dir)]):
-        with mock.patch('pathlib.Path.mkdir', side_effect=OSError("Permission denied")):
-            with mock.patch('sys.exit') as mock_exit:
+    with mock.patch("sys.argv", ["pdf2png.py", str(pdf_path), str(out_dir)]):
+        with mock.patch("pathlib.Path.mkdir", side_effect=OSError("Permission denied")):
+            with mock.patch("sys.exit") as mock_exit:
                 mock_exit.side_effect = SystemExit
                 with pytest.raises(SystemExit):
-                    from src.pdf2png import main
+                    from pdf2png import main
+
                     main()
                 call_arg = mock_exit.call_args[0][0]
-                assert "Unable to create output directory" in call_arg and "Permission denied" in call_arg
+                assert (
+                    "Unable to create output directory" in call_arg
+                    and "Permission denied" in call_arg
+                )

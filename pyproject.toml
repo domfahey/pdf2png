@@ -16,11 +16,13 @@ readme = "README.md"
 [project.scripts]
 pdf2png = "src.pdf2png:main"
 
-[tool.uv.pip]
-extra-index-url = []
-
-[tool.setuptools.packages.find]
-where = ["src"]
+[dependency-groups]
+dev = [
+    "ruff >= 0.6.0",
+    "mypy >= 1.11.0",
+    "pytest >= 8.0.0",
+    "pytest-cov >= 5.0.0",
+]
 
 [build-system]
 requires = ["setuptools >= 61.0"]
@@ -29,12 +31,12 @@ build-backend = "setuptools.build_meta"
 [tool.ruff]
 line-length = 88
 target-version = "py313"
-fixable = ["ALL"]
-unsafe-fixes = true
 
 [tool.ruff.lint]
+fixable = ["ALL"]
+extend-unsafe-fixes = ["ALL"]
 select = ["E", "F", "W", "N", "B", "A", "C4", "T10", "T20", "SIM", "PIE", "RET", "FLY", "PERF", "FURB", "LOG", "RUF"]
-ignore = ["N803", "N806", "S101", "PLR0913", "PLR0912", "PLR0915", "FBT001", "FBT003", "A002", "A003", "EM101", "EM102", "TRY003", "FBT002", "TD002", "TD003", "FIX002"]
+ignore = ["N803", "N806", "S101", "PLR0913", "PLR0912", "PLR0915", "FBT001", "FBT003", "A002", "A003", "EM101", "EM102", "TRY003", "FBT002", "TD002", "TD003", "FIX002", "SIM117"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -45,8 +47,17 @@ line-ending = "auto"
 
 [tool.mypy]
 python_version = "3.13"
-strict = true
 files = ["src", "tests"]
+no_namespace_packages = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "src.*"
+strict = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disable_error_code = ["no-untyped-def", "no-untyped-call"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -54,11 +65,3 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 addopts = "--strict-markers --strict-config"
-
-[tool.uv]
-dev-dependencies = [
-    "ruff >= 0.6.0",
-    "mypy >= 1.11.0",
-    "pytest >= 8.0.0",
-    "pytest-cov >= 5.0.0",
-]
