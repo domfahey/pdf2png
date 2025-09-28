@@ -95,7 +95,7 @@ uv run make test      # Execute pytest suite
 ├── Makefile               # Development automation
 ├── requirements.txt       # Runtime deps (deprecated)
 ├── CHANGELOG.md           # Version release notes
-├── CONTRIBUTING.md        # Contributor guide
+├── AGENTS.md              # Contributor and agent development guide
 ├── SECURITY.md            # Security reporting policy
 ├── LICENSE                # MIT license
 ├── README.md              # This file
@@ -103,7 +103,7 @@ uv run make test      # Execute pytest suite
 ```
 
 ## Contributing
-- Follow the conventions in `CONTRIBUTING.md` for style, testing, and PR etiquette.
+- Follow the conventions in `AGENTS.md` for style, testing, and PR etiquette.
 - Keep commits concise and imperative (e.g., `Add pytest test target`).
 - Include relevant `uv run make …` outputs in PR descriptions to document validation.
 
