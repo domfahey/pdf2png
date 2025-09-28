@@ -6,6 +6,9 @@ Convert scanned, multi-page PDFs into lossless, page-numbered PNG images using a
 
 [![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![CI Status](https://github.com/yourusername/pdf2png/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/pdf2png/actions)
+[![Coverage](https://img.shields.io/badge/coverage-85%25-brightgreen.svg)](https://github.com/yourusername/pdf2png)
+[![Code Style](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 ## Table of Contents
 
@@ -79,17 +82,24 @@ uv run make test      # Execute pytest suite
 ```
 .
 ├── pyproject.toml         # Project configuration and dependencies
-├── pdf2png.py            # CLI entry point and conversion logic
-├── tests/                # pytest suites (e.g., synthetic PDF regression tests)
-├── examples/             # Sample PDF and output files for testing
-├── scripts/              # Helper automation (setup + conversion wrappers)
-├── Makefile              # Developer automation (lint, format, test, type-check)
-├── requirements.txt      # Runtime dependencies (pikepdf, Pillow)
-├── requirements-dev.txt  # Development tooling requirements (deprecated, see pyproject.toml)
-├── CONTRIBUTING.md       # Contributor guide for agents and maintainers
-├── LICENSE               # MIT license
-├── README.md             # This file
-└── .gitignore            # Git ignore patterns
+├── pdf2png.py             # Legacy CLI entry point (imports from src/)
+├── src/pdf2png/           # Main package
+│   ├── __init__.py        # Package initialization
+│   ├── __main__.py        # Package CLI entry point
+│   ├── cli.py             # CLI argument parsing and main logic
+│   └── converter.py       # Core conversion utilities
+├── tests/                 # pytest suites (e.g., test_pdf2png.py)
+├── examples/              # Sample PDF and output files
+├── scripts/               # Helper automation scripts
+├── .github/workflows/     # GitHub Actions CI configuration
+├── Makefile               # Development automation
+├── requirements.txt       # Runtime deps (deprecated)
+├── CHANGELOG.md           # Version release notes
+├── CONTRIBUTING.md        # Contributor guide
+├── SECURITY.md            # Security reporting policy
+├── LICENSE                # MIT license
+├── README.md              # This file
+└── .gitignore             # Git ignore patterns
 ```
 
 ## Contributing

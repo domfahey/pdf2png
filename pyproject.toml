@@ -13,9 +13,47 @@ dependencies = [
 ]
 readme = "README.md"
 
+[project.scripts]
+pdf2png = "src.pdf2png:main"
+
+[tool.uv.pip]
+extra-index-url = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [build-system]
 requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+fixable = ["ALL"]
+unsafe-fixes = true
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "N", "B", "A", "C4", "T10", "T20", "SIM", "PIE", "RET", "FLY", "PERF", "FURB", "LOG", "RUF"]
+ignore = ["N803", "N806", "S101", "PLR0913", "PLR0912", "PLR0915", "FBT001", "FBT003", "A002", "A003", "EM101", "EM102", "TRY003", "FBT002", "TD002", "TD003", "FIX002"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "--strict-markers --strict-config"
 
 [tool.uv]
 dev-dependencies = [

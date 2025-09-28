@@ -4,7 +4,7 @@ from unittest import mock
 
 from PIL import Image, ImageChops
 
-from pdf2png import convert_pdf, get_largest_image
+from src.pdf2png import convert_pdf, get_largest_image
 
 
 def create_sample_pdf(pdf_path: Path, size=(32, 32), append_images=None) -> Image.Image:
@@ -134,7 +134,7 @@ def test_convert_pdf_page_processing_error(tmp_path) -> None:
     output_dir = tmp_path / "out"
     output_dir.mkdir()
 
-    with mock.patch('pdf2png.page_to_png', side_effect=RuntimeError("No extractable images found on page")):
+    with mock.patch('src.pdf2png.converter.page_to_png', side_effect=RuntimeError("No extractable images found on page")):
         with pytest.raises(RuntimeError, match=r"Failed on page 1 of 1: No extractable images found on page"):
             convert_pdf(pdf_path, output_dir, prefix="sample", overwrite=False)
 
@@ -148,7 +148,7 @@ def test_main_invalid_pdf_path(tmp_path) -> None:
         with mock.patch('sys.exit') as mock_exit:
             mock_exit.side_effect = SystemExit
             with pytest.raises(SystemExit):
-                from pdf2png import main
+                from src.pdf2png import main
                 main()
             mock_exit.assert_called_once_with(f"Input PDF does not exist: {pdf_path}")
 
@@ -163,7 +163,7 @@ def test_main_not_pdf_extension(tmp_path) -> None:
         with mock.patch('sys.exit') as mock_exit:
             mock_exit.side_effect = SystemExit
             with pytest.raises(SystemExit):
-                from pdf2png import main
+                from src.pdf2png import main
                 main()
             mock_exit.assert_called_once_with("Input file must be a PDF")
 
@@ -179,7 +179,7 @@ def test_main_mkdir_failure(tmp_path) -> None:
             with mock.patch('sys.exit') as mock_exit:
                 mock_exit.side_effect = SystemExit
                 with pytest.raises(SystemExit):
-                    from pdf2png import main
+                    from src.pdf2png import main
                     main()
                 call_arg = mock_exit.call_args[0][0]
                 assert "Unable to create output directory" in call_arg and "Permission denied" in call_arg

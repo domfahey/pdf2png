@@ -34,7 +34,55 @@
 - Cover error cases such as missing images or overwritten files.
 - Run `make test` before submitting changes; include new tests with any new feature or bug fix.
 
+## Development Setup
+
+1. **Prerequisites**: Ensure you have Python 3.13+ and `uv` installed.
+2. **Clone the repository**: `git clone https://github.com/yourusername/pdf2png.git && cd pdf2png`
+3. **Install dependencies**: `uv sync --dev`
+4. **Set up pre-commit hooks**: `uv run pre-commit install`
+5. **Verify setup**: Run `make check` to ensure everything is working
+
+## Testing Guidelines
+
+- Write tests under `tests/` named `test_<feature>.py`
+- Prefer fixture-backed temporary paths for file outputs
+- Cover error cases such as missing images or fileoverwrite issues
+- Run `uv run pytest` or `make test` before submitting changes
+- Include new tests with any new feature or bug fix
+
+## Coding Standards
+
+- Use `ruff` formatting and linting (see `pyproject.toml`)
+- Write type-hinted Python with `mypy` compliance
+- Follow Google-style docstrings for functions and modules
+- Use descriptive variable names and maintain consistency
+- Keep functions focused on single responsibilities
+
+## Pull Request Template
+
+When creating a pull request, include:
+
+- **Description**: What changes does this PR introduce?
+- **Testing**: How have you tested these changes?
+- **Checklist**: Ensure the following are met:
+  - [ ] Tests pass (`make test`)
+  - [ ] Code style checks pass (`make lint`)
+  - [ ] Typing checks pass (`make type-check`)
+  - [ ] No security issues introduced
+  - [ ] Documentation updated if needed
+
+## Commit Message Guidelines
+
+- Follow imperative, concise messages like `Add pytest test target` or `Fix page processing error`
+- Use conventional commit prefixes when applicable:
+  - `feat:` for new features
+  - `fix:` for bug fixes
+  - `docs:` for documentation
+  - `refactor:` for code restructuring
+  - `test:` for test additions
+
 ## Commit & Pull Request Guidelines
-- Follow imperative, concise commit messages similar to `Add pytest test target` or `Implement lossless page export`.
-- Each PR should summarize functional changes, list validation commands (lint/test/type-check), and link relevant issues.
-- Include before/after screenshots only when CLI output changes; otherwise provide sample command invocations.
+- Each PR should summarize functional changes, provide validation command outputs, and link related issues
+- Include before/after examples for CLI changes
+- Keep PR scope focused on a single concern when possible
+- Request reviews from maintainers before merging

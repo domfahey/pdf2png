@@ -1,46 +1,38 @@
-PYTHON ?= .venv/bin/python
-
-ifneq ($(filter convert,$(MAKECMDGOALS)),)
-CONVERT_ARGS := $(filter-out convert,$(MAKECMDGOALS))
-ifndef PDF
-PDF := $(firstword $(CONVERT_ARGS))
-endif
-ifeq ($(strip $(PDF)),)
-$(error PDF argument required. Usage: make convert sample.pdf or make convert PDF=sample.pdf)
-endif
-EXTRA_CONVERT_GOALS := $(filter-out $(PDF),$(CONVERT_ARGS))
-ifneq ($(strip $(CONVERT_ARGS)),)
-.PHONY: $(CONVERT_ARGS)
-$(CONVERT_ARGS):
-	@:
-endif
-endif
-
-CONVERT_PREFIX :=
-ifneq ($(strip $(PREFIX)),)
-  CONVERT_PREFIX := --prefix "$(PREFIX)"
-endif
-
-CONVERT_OVERWRITE :=
-ifneq ($(filter 1 true yes,$(OVERWRITE)),)
-  CONVERT_OVERWRITE := --overwrite
-endif
-
-.PHONY: install convert lint format test type-check
+.PHONY: install convert lint format test type-check coverage
 
 install:
-	./scripts/setup.sh
+	uv sync --dev
 
 convert:
-	./scripts/convert.sh --pdf "$(PDF)" $(CONVERT_PREFIX) $(CONVERT_OVERWRITE)
+	@if [ -z "$(PDF)" ]; then \
+		echo "Usage: make convert PDF=path/to/file.pdf [PREFIX=name] [OVERWRITE=1]"; \
+		exit 1; \
+	fi; \
+	uv run pdf2png "$(PDF)" . --prefix "$(or $(PREFIX),$(basename $(PDF)))" $(if $(filter 1 true yes,$(OVERWRITE)),--overwrite)
+
 lint:
-	$(PYTHON) -m ruff check .
+	uv run ruff check . --fix
 
 format:
-	$(PYTHON) -m ruff format .
+	uv run ruff format .
 
 test:
-	$(PYTHON) -m pytest
+	uv run pytest
+
+coverage:
+	uv run pytest --cov=src/pdf2png --cov-report=term-missing
 
 type-check:
-	$(PYTHON) -m mypy .
+	uv run mypy
+
+check: lint type-check test coverage
+
+clean:
+	rm -rf .venv dist *.egg-info
+
+build:
+	uv build
+
+publish:
+	uv build
+	uv publish
