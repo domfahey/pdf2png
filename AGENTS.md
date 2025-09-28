@@ -1,5 +1,13 @@
 # Repository Guidelines
 
+## Table of Contents
+
+- [Project Structure & Module Organization](#project-structure--module-organization)
+- [Build, Test, and Development Commands](#build-test-and-development-commands)
+- [Coding Style & Naming Conventions](#coding-style--naming-conventions)
+- [Testing Guidelines](#testing-guidelines)
+- [Commit & Pull Request Guidelines](#commit--pull-request-guidelines)
+
 ## Project Structure & Module Organization
 - `pdf2png.py` contains the CLI entry point and conversion utilities.
 - `tests/` holds `pytest` suites (e.g., `tests/test_pdf2png.py`) that synthesize PDFs for regression checks.
