@@ -78,17 +78,22 @@ uv run make test      # Execute pytest suite
 ## Project Layout
 ```
 .
+├── pyproject.toml         # Project configuration and dependencies
 ├── pdf2png.py            # CLI entry point and conversion logic
 ├── tests/                # pytest suites (e.g., synthetic PDF regression tests)
+├── examples/             # Sample PDF and output files for testing
+├── scripts/              # Helper automation (setup + conversion wrappers)
 ├── Makefile              # Developer automation (lint, format, test, type-check)
 ├── requirements.txt      # Runtime dependencies (pikepdf, Pillow)
-├── requirements-dev.txt  # Development tooling requirements
-├── scripts/              # Helper automation (setup + conversion wrappers)
-└── AGENTS.md             # Contributor guide for agents and maintainers
+├── requirements-dev.txt  # Development tooling requirements (deprecated, see pyproject.toml)
+├── CONTRIBUTING.md       # Contributor guide for agents and maintainers
+├── LICENSE               # MIT license
+├── README.md             # This file
+└── .gitignore            # Git ignore patterns
 ```
 
 ## Contributing
-- Follow the conventions in `AGENTS.md` for style, testing, and PR etiquette.
+- Follow the conventions in `CONTRIBUTING.md` for style, testing, and PR etiquette.
 - Keep commits concise and imperative (e.g., `Add pytest test target`).
 - Include relevant `uv run make …` outputs in PR descriptions to document validation.
 
