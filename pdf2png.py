@@ -4,10 +4,10 @@
 import argparse
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, cast
 
 import pikepdf
-from pikepdf import PdfImage
+from pikepdf import PdfImage, Stream
 from PIL import Image
 
 
@@ -50,7 +50,7 @@ def page_to_png(page: pikepdf.Page, output_path: Path) -> None:
     pdf_images = []
     for raw_image in page.images.values():
         try:
-            pdf_images.append(PdfImage(raw_image))
+            pdf_images.append(PdfImage(cast(Stream, raw_image)))
         except pikepdf.PdfError:
             continue
 
@@ -59,7 +59,8 @@ def page_to_png(page: pikepdf.Page, output_path: Path) -> None:
 
     largest = get_largest_image(pdf_images)
     pil_image: Image.Image = largest.as_pil_image()
-    pil_image.save(output_path, format="PNG")
+    # Use PNG with no lossy transformations so pixel data remains untouched.
+    pil_image.save(output_path, format="PNG", compress_level=0, optimize=False)
 
 
 def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) -> None:
