@@ -14,7 +14,7 @@ dependencies = [
 readme = "README.md"
 
 [project.scripts]
-pdf2png = "src.pdf2png:main"
+pdf2png = "pdf2png:main"
 
 [dependency-groups]
 dev = [

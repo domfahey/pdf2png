@@ -22,7 +22,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "output_dir",
         type=Path,
-        help="Directory where PNG files will be written.",
+        nargs="?",
+        default=Path("."),
+        help="Directory where PNG files will be written (default: current directory).",
     )
     parser.add_argument(
         "--prefix",
