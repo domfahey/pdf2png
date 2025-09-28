@@ -1,4 +1,23 @@
-.PHONY: install convert lint format test type-check coverage
+.PHONY: help doctor install convert lint format test type-check coverage check clean build publish
+
+.DEFAULT_GOAL := help
+
+help:
+	@echo "Available targets:"
+	@echo "  install      Install development dependencies"
+	@echo "  convert      Convert PDF to PNG (usage: make convert PDF=path/to/file.pdf [PREFIX=name] [OVERWRITE=1])"
+	@echo "  lint         Run Ruff linting and auto-fix"
+	@echo "  format       Run Ruff code formatting"
+	@echo "  test         Run pytest test suite"
+	@echo "  type-check   Run MyPy type checking"
+	@echo "  coverage     Run tests with coverage report"
+	@echo "  check        Run lint, type-check, test, and coverage"
+	@echo "  doctor       Alias for check - verify project health"
+	@echo "  clean        Clean up build artifacts and virtual environment"
+	@echo "  build        Build distribution packages"
+	@echo "  publish      Build and publish to PyPI"
+
+doctor: check
 
 install:
 	uv sync --dev
