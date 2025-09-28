@@ -116,6 +116,25 @@ ENV/
 env.bak/
 venv.bak/
 
+# Secrets and Credentials
+secrets.json
+.env.local
+.env.production
+.env.development
+.env.staging
+*_private.pem
+*_public.pem
+id_*
+*password*
+*.keytab
+keyring/
+aws_credentials
+credentials.json
+config.json
+火 token
+api_key*
+secret*
+
 # Spyder project settings
 .spyderproject
 .spyproject
