@@ -72,6 +72,15 @@ def create_sample_pdf(pdf_path: Path, size=SAMPLE_SIZE, append_images=None) -> I
     return image
 
 
+# Fixture for real sample PDF in examples/
+@pytest.fixture
+def examples_sample_pdf() -> Path:
+    """Path to the real sample PDF in examples."""
+    sample_path = Path(__file__).parent.parent / "examples" / "sample.pdf"
+    assert sample_path.exists(), f"Sample PDF not found at {sample_path}"
+    return sample_path
+
+
 def test_get_largest_image():
     """Test get_largest_image function selects the largest by pixel area."""
 
@@ -229,3 +238,40 @@ def test_main_mkdir_failure(tmp_path) -> None:
                     "Unable to create output directory" in call_arg
                     and "Permission denied" in call_arg
                 )
+
+
+def test_convert_pdf_with_real_sample(examples_sample_pdf: Path, tmp_path: Path) -> None:
+    """Test conversion using the real sample.pdf file from examples."""
+    output_dir = tmp_path / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    convert_pdf(examples_sample_pdf, output_dir, prefix="test", overwrite=False)
+
+    # Verify output files were created
+    output_files = list(output_dir.glob("test_page_*.png"))
+    assert len(output_files) == 5  # sample.pdf has 5 pages
+
+    # Verify each file is a valid PNG
+    for output_file in output_files:
+        with Image.open(output_file) as img:
+            assert img.format == "PNG"
+
+
+def test_convert_pdf_real_sample_vs_examples(examples_sample_pdf: Path, tmp_path: Path) -> None:
+    """Test that conversion of real sample.pdf produces expected page count."""
+    output_dir = tmp_path / "output"
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Convert the real sample PDF
+    convert_pdf(examples_sample_pdf, output_dir, prefix="test", overwrite=False)
+
+    # Count output files
+    output_files = list(output_dir.glob("test_page_*.png"))
+    assert len(output_files) == 5  # sample.pdf has exactly 5 pages
+
+    # Verify all outputs are readable and sized appropriately
+    for output_file in output_files:
+        assert output_file.stat().st_size > 0  # Non-empty file
+        with Image.open(output_file) as img:
+            assert img.width > 0
+            assert img.height > 0
