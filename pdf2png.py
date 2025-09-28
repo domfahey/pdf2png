@@ -64,6 +64,21 @@ def page_to_png(page: pikepdf.Page, output_path: Path) -> None:
 
 
 def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) -> None:
+    """Convert each page of the PDF to a separate PNG file.
+
+    For each page in the PDF, extracts the largest image and saves it as a PNG
+    file with a numbered suffix (e.g., prefix_page_001.png).
+
+    Args:
+        pdf_path: Path to the input PDF file.
+        output_dir: Directory where PNG files will be saved.
+        prefix: String prefix for output filenames.
+        overwrite: If True, overwrite existing PNG files; otherwise raise an error.
+
+    Raises:
+        FileExistsError: If a PNG file already exists and overwrite is False.
+        RuntimeError: If a page contains no extractable images.
+    """
     with pikepdf.open(pdf_path) as pdf:
         total_pages = len(pdf.pages)
         for index, page in enumerate(pdf.pages, start=1):
@@ -84,6 +99,10 @@ def convert_pdf(pdf_path: Path, output_dir: Path, prefix: str, overwrite: bool) 
 
 
 def main() -> None:
+    """Main entry point for the CLI application.
+
+    Parses command-line arguments, validates inputs, and initiates PDF conversion.
+    """
     args = parse_args()
     pdf_path: Path = args.pdf_path
     output_dir: Path = args.output_dir
